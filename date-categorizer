@@ -1,0 +1,52 @@
+#!/usr/bin/python3
+from os import path, listdir, system
+from datetime import datetime
+from sys import argv, exit
+run=True
+onlyYear=False
+onlyMonth=False
+err=False
+if "-h" in argv or "--help" in argv:
+    help=True
+    run=False
+if "-y" in argv or "--year-only" in argv:
+    onlyYear=True
+   
+if "-m" in argv or "--month-only" in argv:
+    onlyMonth=True
+for arg in argv[1:]:
+    if arg not in ["-h","--help","-y","--year-only","-m","--month-only"]:
+        run=False
+        err=True
+years=[]
+def timeseparator(drc,ind):
+    for file in listdir(drc):
+        time=datetime.fromtimestamp(path.getmtime(drc+"/"+file)).strftime("%Y %B").split()[ind]
+        if ind==0: years.append(time)
+        system("mkdir -p "+drc+"/"+time)
+        system('mv "'+drc+"/"+file.replace('"','\\"')+"\" "+drc+"/"+time)
+if err:
+    print("Unknown argument.")
+    exit(1)
+if run:
+    if onlyMonth and onlyYear: print("＼(`O´)／ .oO( Impossible request. )")
+    else:
+        if onlyMonth: timeseparator(".",1)
+        else: timeseparator(".",0)
+        if not onlyYear:
+            for year in set(years): timeseparator("./"+year,1)
+elif help: print("""
+Description:
+
+    This script categorizes files in current directory by years and months.
+
+Arguments:
+
+    -h, --help       : Shows this help document.
+    -y, --year-only  : Passes categorizing by months, in year folders.
+    -h, --month-only : Passes categorizing by years, only by months. I.e: 1999 April and 2021 April goes in same folder.
+
+Notes:
+
+    If no arguments are written, it will be categorized by both years and months.
+""")
